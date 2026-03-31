@@ -396,4 +396,366 @@ export default function AdminDashboard() {
             <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
               <div className="mb-5 flex items-center justify-between">
                 <h3 className="text-lg font-semibold">
-                  {editingProductId ? "
+                  {editingProductId ? "Edit Product" : "Add Product"}
+                </h3>
+
+                {editingProductId && (
+                  <button
+                    onClick={() => {
+                      setEditingProductId(null);
+                      setProductForm(emptyProductForm);
+                      clearAlerts();
+                    }}
+                    className="text-sm text-slate-400 hover:text-white"
+                  >
+                    Cancel edit
+                  </button>
+                )}
+              </div>
+
+              <form onSubmit={handleProductSubmit} className="space-y-4">
+                <div>
+                  <label className="mb-2 block text-sm text-slate-300">
+                    Product Name
+                  </label>
+                  <input
+                    type="text"
+                    value={productForm.name}
+                    onChange={(e) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
+                    required
+                    className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-slate-300">
+                    Description
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={productForm.description}
+                    onChange={(e) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-slate-300">
+                    Price
+                  </label>
+                  <input
+                    type="text"
+                    value={productForm.price}
+                    onChange={(e) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        price: e.target.value,
+                      }))
+                    }
+                    placeholder="$99"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-slate-300">
+                    Image URL
+                  </label>
+                  <input
+                    type="text"
+                    value={productForm.image_url}
+                    onChange={(e) =>
+                      setProductForm((prev) => ({
+                        ...prev,
+                        image_url: e.target.value,
+                      }))
+                    }
+                    placeholder="https://..."
+                    className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500 px-4 py-3 font-semibold text-white transition hover:opacity-95 disabled:opacity-60"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-5 w-5" />
+                      {editingProductId ? "Update Product" : "Add Product"}
+                    </>
+                  )}
+                </button>
+              </form>
+            </section>
+
+            <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+              <div className="mb-5 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Products List</h3>
+                {loadingProducts && (
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading...
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                {products.length === 0 && !loadingProducts ? (
+                  <div className="rounded-xl border border-dashed border-slate-700 px-4 py-8 text-center text-slate-400">
+                    No products found.
+                  </div>
+                ) : (
+                  products.map((product) => (
+                    <div
+                      key={product.id}
+                      className="rounded-2xl border border-slate-800 bg-slate-950 p-4"
+                    >
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="flex gap-4">
+                          <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-slate-800">
+                            {product.image_url ? (
+                              <img
+                                src={product.image_url}
+                                alt={product.name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-slate-500">
+                                <Package className="h-8 w-8" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <h4 className="text-base font-semibold text-white">
+                              {product.name}
+                            </h4>
+                            {product.price && (
+                              <p className="mt-1 text-sm font-medium text-cyan-400">
+                                {product.price}
+                              </p>
+                            )}
+                            {product.description && (
+                              <p className="mt-2 text-sm text-slate-400">
+                                {product.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditProduct(product)}
+                            className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 hover:bg-slate-700"
+                          >
+                            <Pencil className="h-4 w-4" />
+                            Edit
+                          </button>
+
+                          <button
+                            onClick={() => handleDeleteProduct(product.id)}
+                            className="inline-flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300 hover:bg-red-500/20"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+          </div>
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-[420px_minmax(0,1fr)]">
+            <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+              <div className="mb-5 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">
+                  {editingBannerId ? "Edit Banner" : "Add Banner"}
+                </h3>
+
+                {editingBannerId && (
+                  <button
+                    onClick={() => {
+                      setEditingBannerId(null);
+                      setBannerForm(emptyBannerForm);
+                      clearAlerts();
+                    }}
+                    className="text-sm text-slate-400 hover:text-white"
+                  >
+                    Cancel edit
+                  </button>
+                )}
+              </div>
+
+              <form onSubmit={handleBannerSubmit} className="space-y-4">
+                <div>
+                  <label className="mb-2 block text-sm text-slate-300">
+                    Banner Title
+                  </label>
+                  <input
+                    type="text"
+                    value={bannerForm.title}
+                    onChange={(e) =>
+                      setBannerForm((prev) => ({
+                        ...prev,
+                        title: e.target.value,
+                      }))
+                    }
+                    required
+                    className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-slate-300">
+                    Subtitle
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={bannerForm.subtitle}
+                    onChange={(e) =>
+                      setBannerForm((prev) => ({
+                        ...prev,
+                        subtitle: e.target.value,
+                      }))
+                    }
+                    className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm text-slate-300">
+                    Image URL
+                  </label>
+                  <input
+                    type="text"
+                    value={bannerForm.image_url}
+                    onChange={(e) =>
+                      setBannerForm((prev) => ({
+                        ...prev,
+                        image_url: e.target.value,
+                      }))
+                    }
+                    placeholder="https://..."
+                    className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 font-semibold text-white transition hover:opacity-95 disabled:opacity-60"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-5 w-5" />
+                      {editingBannerId ? "Update Banner" : "Add Banner"}
+                    </>
+                  )}
+                </button>
+              </form>
+            </section>
+
+            <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+              <div className="mb-5 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Banners List</h3>
+                {loadingBanners && (
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading...
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                {banners.length === 0 && !loadingBanners ? (
+                  <div className="rounded-xl border border-dashed border-slate-700 px-4 py-8 text-center text-slate-400">
+                    No banners found.
+                  </div>
+                ) : (
+                  banners.map((banner) => (
+                    <div
+                      key={banner.id}
+                      className="rounded-2xl border border-slate-800 bg-slate-950 p-4"
+                    >
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="flex gap-4">
+                          <div className="h-20 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-slate-800">
+                            {banner.image_url ? (
+                              <img
+                                src={banner.image_url}
+                                alt={banner.title}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-slate-500">
+                                <ImageIcon className="h-8 w-8" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <h4 className="text-base font-semibold text-white">
+                              {banner.title}
+                            </h4>
+                            {banner.subtitle && (
+                              <p className="mt-2 text-sm text-slate-400">
+                                {banner.subtitle}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditBanner(banner)}
+                            className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 hover:bg-slate-700"
+                          >
+                            <Pencil className="h-4 w-4" />
+                            Edit
+                          </button>
+
+                          <button
+                            onClick={() => handleDeleteBanner(banner.id)}
+                            className="inline-flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300 hover:bg-red-500/20"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+  }
